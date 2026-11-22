@@ -217,13 +217,15 @@ When the goal is not a standalone 60-second short, but a cohesive condensed reca
    - Run `silencedetect=noise=-30dB:d=0.8` on candidate ranges to prune pauses, compilation waits, and vocal hesitation.
    - Ensure every slice begins at the start of a grammatical sentence and ends on a completed thought using Whisper word timestamps.
 
-3. **Seamless Multi-Segment Concat & Audio Stitching**:
-   - Concatenate all slices using FFmpeg filter graph.
-   - Apply audio crossfades (`acrossfade=d=0.15`) at cut points to eliminate room-tone pops and preserve natural listening flow.
-   - Apply clean jump-cuts or subtle 0.2s crossfades (`xfade=transition=fade:duration=0.2`) between distinct scenes.
+3. **Dynamic Visual Transitions & Audio Crossfading (No Abrupt Jump-Cuts)**:
+   - When joining narrative acts, never rely on raw hard cuts. Apply dynamic movement transitions to clearly signal the scene change to the audience:
+     - **Visual Transition**: `xfade=transition=slideleft:duration=0.5:offset=...` (or `smoothleft`), creating an agile mobile-first slide effect where the outgoing scene moves out to the left as the new scene slides in from the right.
+     - **Audio Transition**: `acrossfade=d=0.5:c1=tri:c2=tri` (triangular curve where the outgoing audio fades smoothly down while the incoming audio fades up, completely eliminating abrupt audio pops or room-tone clashes).
+   - Ensure cumulative transition offsets are calculated precisely: $offset_i = L_{i-1} - T$ where $T=0.5\text{s}$.
 
-4. **Contextual Lower-Thirds & Chapter Indicators**:
-   - Overlay unobtrusive progress markers at each act transition (e.g., `Paso 1: Búsqueda en Memoria`, `Paso 2: Inyección C++`, `Paso 3: Demostración en CS2`).
+4. **Clean Screen Space (No Dark Header Boxes)**:
+   - Do NOT render intrusive top title banners or dark background boxes across scene changes. Keep the upper canvas clean (preserving blurred video background and framed video content).
+   - All text and speech tracking must reside strictly in the bottom safe zone ($Y=1350$) using dynamic Anton subtitles.
 
 5. **Flexible Output Aspect Ratio**:
    - **Horizontal 16:9 (`1920x1080 @ 60fps`)**: For YouTube / recap videos.
