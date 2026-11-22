@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "dropia-clips": {
+      "command": "C:\\Users\\USUARIO\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+      "args": [
+        "C:\\Users\\USUARIO\\Desktop\\ClipYotube\\mcp_server.py"
+      ],
+      "env": {
+        "PYTHONIOENCODING": "utf-8"
+      }
+    }
+  }
+}

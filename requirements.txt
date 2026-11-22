@@ -1,0 +1,8 @@
+requests
+yt-dlp
+faster-whisper
+pillow>=10.0.0
+google-api-python-client
+google-auth
+google-auth-oauthlib
+mcp>=1.0.0
