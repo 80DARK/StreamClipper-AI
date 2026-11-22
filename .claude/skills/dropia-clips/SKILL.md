@@ -176,6 +176,63 @@ For every long-form stream, the agent must mine at least 10 candidate segments a
 
 ---
 
+## Non-Live / Recorded Video Mining Protocol (Videos sin Chat)
+
+When the source input is an edited, pre-recorded, or tutorial video (lacking live chat recording):
+
+1. **Heatmap & Retention Graph Extraction**:
+   - Query YouTube metadata for `heatmap` (`most replayed` data points).
+   - If present, map peaks where audience rewatch rates exceed 1.5x the median retention.
+   - If absent (recent or technical videos), pivot immediately to Audio-Semantic Mining.
+
+2. **Rapid Audio Stream Extraction & Full Transcription**:
+   - Download the low-bandwidth audio stream (`-x --audio-format m4a`), taking under 5 seconds for a 20-minute video.
+   - Transcribe 100% of the audio with `faster-whisper` (`small` or `base` with `int8` on CPU) producing word-level timestamps (`startMs`, `endMs`).
+
+3. **Semantic Story Arc Breakdown**:
+   Analyze the full chronological script to identify four core structural beats:
+   - **The Premise / Hook** (First 30–60s): The creator states what will be built, solved, or tested.
+   - **The Core Problem / Theory**: Technical explanation of the underlying logic (e.g., memory flags, API constraints).
+   - **The Breakthrough / Implementation**: Code writing, exploit crafting, or crucial setup steps.
+   - **The Climax / Proof of Concept**: The working demonstration at full speed (e.g., bhop speed test, successful execution).
+
+4. **Keyframe Sampling & Visual Framing**:
+   - Extract sample frames every 30-45s across the video.
+   - Classify visual contents (Code Editor, Cheat Engine, Game, Presentation).
+   - Crop or frame dynamically to ensure the most informative zone (code or action) remains prominent and sharp in the vertical or horizontal output.
+
+---
+
+## Narrative Supercut & Condensation Protocol (Long-form to 3–5 min Summaries)
+
+When the goal is not a standalone 60-second short, but a cohesive condensed recap (e.g., transforming a 15–30 minute tutorial into a punchy 3 to 5-minute video):
+
+1. **Beat-Sheet Narrative Blueprint**:
+   Construct an editorial timeline composed of 4 to 6 connected scenes that preserve the logical progression:
+   - **Act 1: The Hook & Goal** (~20–40s): What we are achieving and why it matters.
+   - **Act 2: The Core Mechanism** (~45–60s): Finding the memory address or defining the architecture.
+   - **Act 3: Key Implementation** (~60–90s): Writing the essential code lines without typing pauses or dead air.
+   - **Act 4: Build & Deploy** (~30–45s): Compilation, DLL injection, or script execution.
+   - **Act 5: Final Demonstration** (~45–90s): Live testing, benchmark verification, and closing remarks.
+
+2. **Automated Dead Air & Filler Removal**:
+   - Run `silencedetect=noise=-30dB:d=0.8` on candidate ranges to prune pauses, compilation waits, and vocal hesitation.
+   - Ensure every slice begins at the start of a grammatical sentence and ends on a completed thought using Whisper word timestamps.
+
+3. **Seamless Multi-Segment Concat & Audio Stitching**:
+   - Concatenate all slices using FFmpeg filter graph.
+   - Apply audio crossfades (`acrossfade=d=0.15`) at cut points to eliminate room-tone pops and preserve natural listening flow.
+   - Apply clean jump-cuts or subtle 0.2s crossfades (`xfade=transition=fade:duration=0.2`) between distinct scenes.
+
+4. **Contextual Lower-Thirds & Chapter Indicators**:
+   - Overlay unobtrusive progress markers at each act transition (e.g., `Paso 1: Búsqueda en Memoria`, `Paso 2: Inyección C++`, `Paso 3: Demostración en CS2`).
+
+5. **Flexible Output Aspect Ratio**:
+   - **Horizontal 16:9 (`1920x1080 @ 60fps`)**: For YouTube / recap videos.
+   - **Vertical 9:16 (`1080x1920 @ 60fps`)**: For extended TikTok / Reels (supporting up to 10 minutes).
+
+---
+
 ## File Organization and Descriptive Naming Standard
 
 All output files must be saved under a descriptive theme folder inside `trabajo/`:
