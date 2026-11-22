@@ -242,6 +242,8 @@ All output files must be saved under a descriptive theme folder inside `trabajo/
 ```
 trabajo/
   └── <Tema_Descriptivo_Del_Video>/
+        ├── 00_RESUMEN_COMPLETO_<Tema>_Reel.mp4        # Reel resumen condensado (3-5 escenas con slideleft)
+        ├── 00_RESUMEN_COMPLETO_<Tema>_Reel_thumb.jpg  # Miniatura de alto impacto del resumen
         ├── 01_<Titulo_Recomendado>.mp4
         ├── 01_<Titulo_Recomendado>_thumb.jpg
         ├── 02_<Titulo_Recomendado>.mp4
@@ -317,6 +319,22 @@ Run `faster-whisper` word alignment and render with `montar.py` at 60 fps:
    ```bash
    ffmpeg -v error -i video.mp4 -vf "blackdetect=d=0.5:pic_th=0.98" -f null -
    ```
+
+### Phase 7: Narrative Supercut & Reel Condensation Execution
+When compiling a continuous 2–3 minute multi-act summary reel:
+1. Render each scene vertically with clean upper space (`titulo=None`) and Anton subtitles in safe zone ($Y=1350$).
+2. Chain video transitions using `slideleft` ($T=0.5\text{s}$):
+   ```bash
+   # offset_i = accum_dur - T
+   [0:v][1:v] xfade=transition=slideleft:duration=0.5:offset=OFFSET_1 [v01];
+   [v01][2:v] xfade=transition=slideleft:duration=0.5:offset=OFFSET_2 [v02]...
+   ```
+3. Chain audio transitions using triangular crossfading:
+   ```bash
+   [0:a][1:a] acrossfade=d=0.5:c1=tri:c2=tri [a01];
+   [a01][2:a] acrossfade=d=0.5:c1=tri:c2=tri [a02]...
+   ```
+4. Output as `00_RESUMEN_COMPLETO_<Tema>_Reel.mp4` and generate `00_RESUMEN_COMPLETO_<Tema>_Reel_thumb.jpg`.
 
 ---
 

@@ -71,7 +71,13 @@ A diferencia de clippers convencionales basados únicamente en volumen de audio,
 - Extracción de fotogramas clave de alta expresión.
 - Superposición de bloques de texto de alto contraste (amarillo/blanco con cajas negro/rojo translúcidas) ideales para atraer clics en feeds verticales.
 
-### 🤖 5. Integración con Agentes de IA (Claude Code & Antigravity)
+### 🎞️ 6. Supercut y Resúmenes Narrativos Condensados (15m → 2–3m)
+- Transforma tutoriales o partidas completas de 15 a 30 minutos en un único Reel continuo de 2 a 3 minutos estructurado en 5 actos (*Hook, Teoría, Código/Acción, Inyección y Demostración en vivo*).
+- **Transiciones Cinematográficas Slide Left**: Cada cambio de escena se desplaza dinámicamente hacia la izquierda (`slideleft` a 60 fps) guiando al espectador entre fases del video.
+- **Fundido Cruzado de Audio (*Acrossfade*)**: Disuelve progresivamente la pista de audio saliente mientras eleva la nueva toma mediante curva triangular, eliminando por completo cortes secos o saltos de ruido ambiente.
+- **Encuadre Superior Limpio**: Sin banners oscuros innecesarios arriba; foco absoluto en el contenido y subtítulos fijados en la zona segura inferior.
+
+### 🤖 7. Integración con Agentes de IA (Claude Code & Antigravity)
 - Incluye servidor **MCP** (`mcp_server.py`) y definiciones de **Skill** estandarizadas para operar de forma 100% autónoma desde la terminal con Claude Code o dentro de la suite Antigravity.
 
 ---
