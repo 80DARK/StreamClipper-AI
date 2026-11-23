@@ -63,7 +63,8 @@ A diferencia de clippers convencionales basados únicamente en volumen de audio,
 
 ### 📱 3. Formato Vertical 9:16 Profesional (TikTok / Reels / Shorts)
 - **Resolución estricta**: `1080x1920` a `60 fps` con `SAR 1:1` (`setsar=1`) para evitar aplastamientos o estiramientos en dispositivos móviles.
-- **Desenfoque de fondo dinámico**: Relleno simétrico desenfocado con atenuación de brillo (`0.75`) para máxima nitidez del contenido principal.
+- **Pantalla Dividida Inteligente (*Split Facecam*)**: Para directos donde el creador tiene webcam en una esquina, encuadra automáticamente la cara en el tercio superior (`1080x700`) ampliando sus reacciones y expresiones, y el gameplay centrado en la parte inferior (`1080x1220`) con una línea divisoria elegante. Esto evita que el streamer quede cortado o en miniatura en la pantalla del móvil.
+- **Desenfoque de fondo dinámico**: En videos sin webcam, utiliza relleno simétrico desenfocado con atenuación de brillo (`0.75`) para máxima nitidez del contenido principal.
 - **Subtítulos con Zona Segura**: Renderizado en tipografía bold (Anton), efecto karaoke dinámico en tonos ámbar y fijados en $Y=1350$, por encima de la interfaz nativa de TikTok e Instagram.
 - **Detección Cero Fotogramas Negros**: Verificación automática para asegurar que ningún clip inicie o termine en negro.
 

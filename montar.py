@@ -81,7 +81,7 @@ def ass(caps, titulo, cam):
         "Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, "
         "MarginL, MarginR, MarginV, Encoding",
         f"Style: Sub,Anton,155,{TEXTO},{TEXTO},&H00000000,&H99000000,0,0,0,0,100,100,0,0,1,7,3,8,60,60,"
-        f"{1380 if cam else 1420},1",
+        f"{1350 if cam else 1420},1",
         f"Style: Titulo,Anton,140,{TEXTO},{TEXTO},{FONDO},{FONDO},0,0,0,0,100,100,0,0,3,18,0,8,90,90,"
         f"{CAM_H + 60 if cam else 200},1",
         "", "[Events]", "Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text",
@@ -111,7 +111,7 @@ def zona(r, ancho, alto, iw, ih):
     return f"crop={int(cw)}:{int(ch)}:{int(x)}:{int(y)},scale={ancho}:{alto},setsar=1"
 
 
-def montar_ffmpeg(clip, salida, dur, subs_ass, cam, juego, chat_card=None, chat_times=None):
+def montar_ffmpeg(clip, salida, dur, subs_ass, cam, juego, chat_card=None, chat_times=None, chat_y=None):
     iw, ih = (int(v) for v in subprocess.run(
         ["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=width,height", "-of", "csv=p=0",
          str(clip)], capture_output=True, text=True, check=True).stdout.strip().split(","))
@@ -132,7 +132,8 @@ def montar_ffmpeg(clip, salida, dur, subs_ass, cam, juego, chat_card=None, chat_
     if chat_card and Path(chat_card).exists() and chat_times:
         cmd_inputs.extend(["-i", str(chat_card)])
         t_start, t_end = chat_times
-        grafo += f",setsar=1[base];[base][1:v]overlay=(W-w)/2:280:enable='between(t,{t_start:.2f},{t_end:.2f})'"
+        pos_y = chat_y if chat_y is not None else (580 if cam else 280)
+        grafo += f",setsar=1[base];[base][1:v]overlay=(W-w)/2:{pos_y}:enable='between(t,{t_start:.2f},{t_end:.2f})'"
 
     grafo += f",setsar=1,ass=filename={rel}:fontsdir=fuentes,setsar=1[out]"
     subprocess.run(["ffmpeg", "-v", "error", "-y", *cmd_inputs, "-t", f"{dur:.2f}", "-filter_complex", grafo,

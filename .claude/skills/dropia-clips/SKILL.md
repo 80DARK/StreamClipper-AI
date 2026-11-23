@@ -142,7 +142,16 @@ The overlay replicates the native dark UI of the source streaming platform:
   - **Message Body**: Clean white message text with proportional line wrapping and drop shadow.
 
 ### 2. Vertical Composition & Speech-to-Chat Synchronization Protocol
-- **Safe Zone Positioning**: Centered horizontally (`X = (1080 - W) / 2`) at vertical position `Y = 280`. This places the card in the upper safe area, below mobile header bars and well above the central gameplay/code action and bottom subtitle zone (`Y = 1350`).
+- **Safe Zone Positioning**: Centered horizontally (`X = (1080 - W) / 2`).
+  - When Full-Width Blur layout is used (`cam=None`), place card at vertical position `Y = 280` in the upper blurred background.
+  - When Split Facecam layout is active (`cam` coordinates defined), place card at vertical position `Y = 580`, bridging the streamer's reaction and the gameplay divider line.
+- **Smart Facecam Split Layout**:
+  - Whenever a stream includes the creator on a webcam in a corner, avoid standard horizontal cropping that cuts the streamer's face or body.
+  - Enforce Split Layout:
+    - Top view (`1080x700`): Zoomed crop on the facecam so facial reactions, expressions, and gestures are clearly visible.
+    - Divider line: 10px accent line (`y=695:w=1080:h=10:color=0xff8a3d:t=fill`).
+    - Bottom view (`1080x1220`): Center crop of the main gameplay/content.
+    - Dynamic Subtitles: Bottom safe zone at `Y = 1350` (`MarginV: 1350`), above bottom controls.
 - **Milimeter Speech-to-Chat Synchronization**:
   1. **Transcription Alignment**: Never estimate or hardcode arbitrary display offsets (e.g. static 3s or 5s). Cross-reference the Faster-Whisper word-level timestamps (`startMs`, `endMs`) with the comment text.
   2. **Exact Trigger ($t_{start}$)**: Identify the exact timestamp when the streamer begins reading the viewer's username or reciting the opening words of the chat message (or the exact second of physical reaction/laugh to the comment). Set $t_{start} = t_{reading} - 0.3\text{s}$ (pre-trigger by 300 ms) so the visual prompt appears just as the viewer hears the vocalization.
