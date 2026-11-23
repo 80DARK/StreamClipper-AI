@@ -163,16 +163,27 @@ def create_chat_card(
     header_h = 52
     spacing_header_msg = 18
 
+    # Calcular ancho del nombre y truncar si colisiona con el badge
+    badge_zone_w = 165
+    avail_author_w = max_width - (pad_h * 2) - avatar_d - 16 - badge_zone_w
+    author_b = dummy_draw.textbbox((0, 0), author, font=font_author)
+    if (author_b[2] - author_b[0]) > avail_author_w:
+        while len(author) > 4 and (dummy_draw.textbbox((0, 0), author + "...", font=font_author)[2] - dummy_draw.textbbox((0, 0), author + "...", font=font_author)[0]) > avail_author_w:
+            author = author[:-1]
+        author = author + "..."
+        author_b = dummy_draw.textbbox((0, 0), author, font=font_author)
+    author_w = author_b[2] - author_b[0]
+
     card_content_h = header_h + spacing_header_msg + msg_total_h
     card_h = card_content_h + (pad_v * 2)
 
-    # Ancho efectivo (si el mensaje es corto, ajustar para no ser gigante innecesariamente)
+    # Ancho efectivo considerando mensaje y header completo
     max_line_w = 0
     for l in lines:
         b = dummy_draw.textbbox((0, 0), l, font=font_msg)
         max_line_w = max(max_line_w, b[2] - b[0])
-    # Considerar ancho del header
-    header_min_w = avatar_d + 14 + 180 + 120
+    
+    header_min_w = avatar_d + 16 + author_w + badge_zone_w
     effective_w = min(max_width, max(header_min_w, max_line_w) + (pad_h * 2))
 
     # Canvas con padding para sombra difusa
