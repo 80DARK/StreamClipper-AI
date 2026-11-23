@@ -145,19 +145,30 @@ The overlay replicates the native dark UI of the source streaming platform:
 - **Safe Zone Positioning**: Centered horizontally (`X = (1080 - W) / 2`).
   - When Full-Width Blur layout is used (`cam=None`), place card at vertical position `Y = 280` in the upper blurred background.
   - When Split Facecam layout is active (`cam` coordinates defined), place card at vertical position `Y = 580`, bridging the streamer's reaction and the gameplay divider line.
-- **Smart Facecam Split Layout**:
-  - Whenever a stream includes the creator on a webcam in a corner, avoid standard horizontal cropping that cuts the streamer's face or body.
-  - Enforce Split Layout:
-    - Top view (`1080x700`): Zoomed crop on the facecam so facial reactions, expressions, and gestures are clearly visible.
-    - Divider line: 10px accent line (`y=695:w=1080:h=10:color=0xff8a3d:t=fill`).
-    - Bottom view (`1080x1220`): Center crop of the main gameplay/content.
-    - Dynamic Subtitles: Bottom safe zone at `Y = 1350` (`MarginV: 1350`), above bottom controls.
+
+- **Smart Facecam Split Layout Protocol**:
+  - Whenever a stream includes the creator on a webcam in a corner (e.g., top-right, bottom-right, or top-left), standard 16:9 full-width center cropping crops out the creator's body and face or reduces them to an unreadable size on mobile screens.
+  - In all streams featuring a corner webcam, the pipeline must enforce the Split Screen Layout:
+    1. **Top Chamber (`1080x700`)**: Zoomed crop on the streamer facecam (`cam` normalized coordinates: `x, y, w, h`). Displays expressions, body language, laughing, and headset gestures clearly.
+    2. **Divider Ribbon (`Y=695`, Height 10px)**: Solid accent border (`y=695:w=1080:h=10:color=0xff8a3d:t=fill`) separating creator view from gameplay.
+    3. **Bottom Chamber (`1080x1220`)**: Centered crop of the gameplay or primary action (`juego` normalized coordinates: `x, y, w, h`), framing vehicles, crosshairs, character action, and removing peripheral clutter (minimap, stream-embedded chat).
+    4. **Bridged Chat Card Overlay (`Y=580`)**: When a chat quote is featured, the card sits across the divider line, seamlessly connecting the streamer's reaction on top with the in-game action below.
+    5. **Dynamic Subtitles Safe Zone (`Y=1350`)**: Subtitles generated in ASS format with `MarginV: 1350`, positioned safely above mobile UI navigation buttons.
+  - **FFmpeg Split Filter Graph Architecture**:
+    ```bash
+    [0:v]fps=60,split=2[a][b];
+    [a]crop=CW_CAM:CH_CAM:X_CAM:Y_CAM,scale=1080:700,setsar=1[cam];
+    [b]crop=CW_GAME:CH_GAME:X_GAME:Y_GAME,scale=1080:1220,setsar=1[game];
+    [cam][game]vstack,drawbox=y=695:w=1080:h=10:color=0xff8a3d:t=fill[base];
+    [base][1:v]overlay=(W-w)/2:580:enable='between(t,START,END)',setsar=1,ass=filename=subtitles.ass:fontsdir=fuentes,setsar=1[out]
+    ```
+
 - **Milimeter Speech-to-Chat Synchronization**:
   1. **Transcription Alignment**: Never estimate or hardcode arbitrary display offsets (e.g. static 3s or 5s). Cross-reference the Faster-Whisper word-level timestamps (`startMs`, `endMs`) with the comment text.
   2. **Exact Trigger ($t_{start}$)**: Identify the exact timestamp when the streamer begins reading the viewer's username or reciting the opening words of the chat message (or the exact second of physical reaction/laugh to the comment). Set $t_{start} = t_{reading} - 0.3\text{s}$ (pre-trigger by 300 ms) so the visual prompt appears just as the viewer hears the vocalization.
   3. **Dismissal Boundary ($t_{end}$)**: The card remains visible throughout the reading of the message plus $1.5\text{s}$ to $2.0\text{s}$ into the streamer's immediate reaction/punchline, then dismisses so the viewer refocuses on the ongoing discussion. Recommended duration: **5 to 9 seconds maximum**.
   4. **Unspoken Reaction Rule**: If the creator does not read the comment verbatim but directly addresses or laughs at it, trigger the card $0.2\text{s}$ prior to the laugh/reaction and dismiss after 6.0 seconds.
-- **FFmpeg Integration Filter**:
+- **FFmpeg Integration Filter (Full-Width Blur Fallback)**:
   ```bash
   ffmpeg -i clip.mp4 -i chat_card.png -filter_complex \
     "[0:v][1:v] overlay=(W-w)/2:280:enable='between(t,START_SEC,END_SEC)' [v_out]" \
